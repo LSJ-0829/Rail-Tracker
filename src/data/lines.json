@@ -283,10 +283,7 @@
       "문산", "파주", "월롱", "금촌", "금릉", "운정", "야당", "탄현", "일산", "풍산", "백마",
       "곡산", "대곡", "능곡", "행신", "강매", "화전", "수색", "디지털미디어시티", "가좌", "신촌", "서울역"
     ],
-    "physicalSegments": [
-      { "physicalLineId": "gyeongui-full", "upTo": "가좌" },
-      { "physicalLineId": "gyeongui-seoul-spur-full", "upTo": "서울역" }
-    ],
+    "physicalLineId": "gyeongui-full",
     "note": "문산~서울역 지선 계통"
   },
   {
@@ -1161,15 +1158,6 @@
     "networkId": "physical",
     "kind": "physical",
     "stations": ["가좌", "홍대입구", "서강대", "공덕", "효창공원앞", "용산"],
-    "regions": ["capital"]
-  },
-  {
-    "id": "gyeongui-seoul-spur-full",
-    "name": "경의선 서울역 지선",
-    "color": null,
-    "networkId": "physical",
-    "kind": "physical",
-    "stations": ["가좌", "신촌", "서울역"],
     "regions": ["capital"]
   },
   {
