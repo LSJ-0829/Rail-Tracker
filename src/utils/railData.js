@@ -50,7 +50,10 @@ export function getUnderlyingPhysicalIds(line) {
   if (line.physicalSegments && Array.isArray(line.physicalSegments)) {
     return Array.from(new Set(line.physicalSegments.map((s) => s.physicalLineId)));
   }
-  return [];
+  // 용인 에버라인·인천 1/2호선·의정부경전철처럼 공유 선로가 없어 별도의 물리 노선 항목이 없는
+  // 단독 운행계통은 자기 자신의 id를 물리 id로 취급한다. (빈 배열을 반환하면 splitTripBySegments가
+  // 기록을 line.id로 저장하는 것과 어긋나서, 기록은 저장되는데 화면엔 영영 안 뜨는 버그가 있었다.)
+  return [line.id];
 }
 
 export function getPhysicalStations(line) {
@@ -59,8 +62,16 @@ export function getPhysicalStations(line) {
   return line.stations || [];
 }
 
+// 용인 에버라인·인천 1/2호선·대구/부산/대전/광주 도시철도처럼 다른 노선과 선로를 공유하지 않는
+// 단독 운행계통은 별도의 물리 노선 항목이 없다(getUnderlyingPhysicalIds가 자기 자신 id를 물리 id로 씀).
+// "노선으로 찾기"에서도 이런 노선을 볼 수 있어야 하고, 전체 완주율 집계에도 빠지면 안 되므로
+// 물리 노선 목록에 함께 포함시킨다.
 export function getPhysicalLineList() {
-  return ALL_LINES.filter((l) => l.kind === 'physical');
+  const physical = ALL_LINES.filter((l) => l.kind === 'physical');
+  const standaloneUrban = ALL_LINES.filter(
+    (l) => l.kind === 'urban' && !l.physicalLineId && !(l.physicalSegments && l.physicalSegments.length)
+  );
+  return [...physical, ...standaloneUrban];
 }
 
 export function deriveServiceCoverage(line, trips) {
