@@ -301,6 +301,7 @@ const PURE_NAME_COLLISIONS = {
     ['jungang-full', 's5-macheon'],
     ['gj', 's5-hanam'], // 경의·중앙선(gj)도 중앙선 구간에 양평역을 포함하므로 같은 예외가 필요
     ['gj', 's5-macheon'],
+    ['seoul5-full', 'gj'], // "노선으로 찾기"의 물리 5호선(seoul5-full)에서 봐도 마찬가지
   ],
   '가좌': [
     ['gj', 'ic2'], // 서울 서대문구 경의중앙선 가좌역 vs 인천 서구 인천 2호선 가좌역

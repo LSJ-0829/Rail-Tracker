@@ -44,11 +44,11 @@ export default function LineDiagram({ line, visited, covered, onToggleStation, s
           const stTransfers = (transferInfo && transferInfo[st]) || { urban: [], hasPassenger: false, passengerLines: [] };
           const urbanTransfers = stTransfers.urban || [];
           const hasPassenger = Boolean(stTransfers.hasPassenger);
-          // 물리 노선의 역 마커 색은 이미 해당 역을 지나는 도시철도 노선 중 하나(urbanTransfers[0])의
-          // 색을 그대로 쓰고 있으므로, 같은 노선을 또 링으로 그리면 원이 두 겹으로 겹쳐 보인다.
-          // 마커 색과 정확히 같은 첫 항목만 링에서 제외하고, 나머지 진짜 추가 환승 노선은 그대로 보여준다.
-          const ringTransfers =
-            urbanTransfers.length > 0 && urbanTransfers[0].color === color ? urbanTransfers.slice(1) : urbanTransfers;
+          // 역 마커 색은 이미 이 역을 지나는 도시철도 노선 중 하나의 색을 쓰고 있으므로(자체 공식
+          // 색이 있는 서울교통공사 N호선 물리 노선이거나, 공식 색이 없어 첫 매칭 노선 색을 빌려온 경우),
+          // 그 노선을 또 링으로 그리면 안쪽 마커와 바깥 링에 같은 색이 겹쳐 보인다. 배열에서의 위치와
+          // 무관하게 마커와 색이 같은 항목은 전부 링에서 제외하고, 진짜 다른 노선만 링으로 보여준다.
+          const ringTransfers = urbanTransfers.filter((t) => t.color !== color);
 
           return (
             <g key={st + i} style={{ cursor: "pointer" }} onClick={() => onToggleStation(st)}>
