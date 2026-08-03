@@ -299,6 +299,8 @@ const PURE_NAME_COLLISIONS = {
   '양평': [
     ['jungang-full', 's5-hanam'], // 경기 양평군 중앙선 양평역 vs 서울 영등포구 5호선 양평역
     ['jungang-full', 's5-macheon'],
+    ['gj', 's5-hanam'], // 경의·중앙선(gj)도 중앙선 구간에 양평역을 포함하므로 같은 예외가 필요
+    ['gj', 's5-macheon'],
   ],
   '가좌': [
     ['gj', 'ic2'], // 서울 서대문구 경의중앙선 가좌역 vs 인천 서구 인천 2호선 가좌역
