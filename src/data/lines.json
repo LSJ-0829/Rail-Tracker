@@ -1502,7 +1502,8 @@
     "kind": "physical",
     "stations": ["가야", "부전"],
     "regions": ["busan"],
-    "note": "가야~부전, 2.2km. 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음)"
+    "passengerAccessible": false,
+    "note": "가야~부전, 2.2km. 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음). passengerAccessible: false라 \"노선으로 찾기\"·완주 통계에서 제외됨"
   },
   {
     "id": "uam-seon-full",
@@ -1512,6 +1513,7 @@
     "kind": "physical",
     "stations": ["부산진", "신선대"],
     "regions": ["busan"],
-    "note": "부산진~신선대(우암부두), 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음)"
+    "passengerAccessible": false,
+    "note": "부산진~신선대(우암부두), 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음). passengerAccessible: false라 \"노선으로 찾기\"·완주 통계에서 제외됨"
   }
 ]

@@ -10,8 +10,11 @@ export const SERVICE_NETWORKS = networksData
     lines: ALL_LINES.filter((l) => l.networkId === net.id && l.kind === 'urban'),
   }));
 
+// passengerAccessible: false인 노선(부전선·우암선 등 화물 전용)의 역은 어떤 화면에서도 탈 수
+// 없으므로, 전체 역 방문율 분모에서도 빼야 한다. 안 그러면 신선대처럼 다른 노선에는 전혀 안 나오는
+// 역이 영원히 "미방문"으로 남아 100% 완주가 불가능해진다.
 export const ALL_STATION_NAMES = Array.from(
-  new Set(linesData.flatMap((l) => l.stations || []))
+  new Set(linesData.filter((l) => l.passengerAccessible !== false).flatMap((l) => l.stations || []))
 ).sort();
 
 const PASSENGER_PHYSICAL_LINE_IDS = new Set([
@@ -88,8 +91,13 @@ export function getPhysicalStations(line) {
 // 단독 운행계통은 별도의 물리 노선 항목이 없다(getUnderlyingPhysicalIds가 자기 자신 id를 물리 id로 씀).
 // "노선으로 찾기"에서도 이런 노선을 볼 수 있어야 하고, 전체 완주율 집계에도 빠지면 안 되므로
 // 물리 노선 목록에 함께 포함시킨다.
+//
+// 부전선·우암선처럼 여객 운행계통이 아예 없는(화물 전용) 물리 노선은 passengerAccessible: false로
+// 표시해 데이터에는 남겨두되(다른 노선의 physicalSegments가 참조할 가능성, 향후 참고용) "노선으로
+// 찾기"와 완주 통계에서는 제외한다. 사용자가 실제로 탈 수 없는 구간을 완주율 분모에 넣는 건 의미가
+// 없기 때문.
 export function getPhysicalLineList() {
-  const physical = ALL_LINES.filter((l) => l.kind === 'physical');
+  const physical = ALL_LINES.filter((l) => l.kind === 'physical' && l.passengerAccessible !== false);
   const standaloneUrban = ALL_LINES.filter(
     (l) => l.kind === 'urban' && !l.physicalLineId && !(l.physicalSegments && l.physicalSegments.length)
   );
