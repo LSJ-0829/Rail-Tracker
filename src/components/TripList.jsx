@@ -1,3 +1,5 @@
+import { displayStationName } from "../utils/railData";
+
 export default function TripList({ physicalStations, lineTrips, onDelete }) {
   const sorted = [...(lineTrips || [])].sort((a, b) => (a.date < b.date ? 1 : -1));
 
@@ -8,14 +10,17 @@ export default function TripList({ physicalStations, lineTrips, onDelete }) {
   return (
     <div className="space-y-1.5">
       {sorted.map((t) => {
-        const i1 = physicalStations.indexOf(t.from);
-        const i2 = physicalStations.indexOf(t.to);
+        // 기록이 지금 보고 있는 노선과 다른 물리 노선(_pid)에 속할 수 있으므로(선로 공유),
+        // 그 기록 고유의 역 목록(_pidStations)이 있으면 그걸 우선 쓴다.
+        const stationList = t._pidStations || physicalStations;
+        const i1 = stationList.indexOf(t.from);
+        const i2 = stationList.indexOf(t.to);
         const stationCount = Math.abs(i1 - i2) + 1;
         return (
           <div key={t.id} className="flex items-center gap-2 text-sm bg-white border border-neutral-200 rounded-lg px-3 py-2 flex-wrap">
             <span className="text-neutral-400 text-xs w-24 shrink-0">{t.date}</span>
             <span className="font-medium">
-              {t.from} → {t.to}
+              {displayStationName(t.from)} → {displayStationName(t.to)}
             </span>
             <span className="text-xs text-neutral-400">({stationCount}개 역 구간)</span>
             {t._pidName && <span className="text-[10px] text-neutral-400 border border-neutral-200 rounded-full px-2 py-0.5">{t._pidName}</span>}

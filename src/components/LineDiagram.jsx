@@ -1,3 +1,5 @@
+import { displayStationName } from "../utils/railData";
+
 export default function LineDiagram({ line, visited, covered, onToggleStation, stationStyles, transferInfo }) {
   const stations = line.stations || [];
   const styles = stationStyles || stations.map(() => ({ color: "#111827", colored: false }));
@@ -111,7 +113,7 @@ export default function LineDiagram({ line, visited, covered, onToggleStation, s
 
               {(urbanTransfers.length > 0 || hasPassenger) && (
                 <title>
-                  {`${st}${urbanTransfers.length > 0 ? ` (전철 환승: ${urbanTransfers.map((t) => t.name).join(", ")})` : ""}${hasPassenger ? ` (여객열차: ${stTransfers.passengerLines.join(", ")})` : ""}`}
+                  {`${displayStationName(st)}${urbanTransfers.length > 0 ? ` (전철 환승: ${urbanTransfers.map((t) => t.name).join(", ")})` : ""}${hasPassenger ? ` (여객열차: ${stTransfers.passengerLines.join(", ")})` : ""}`}
                 </title>
               )}
 
@@ -124,7 +126,7 @@ export default function LineDiagram({ line, visited, covered, onToggleStation, s
                 fill={isVisited ? "#1a1a1a" : "#8a8a8a"}
                 transform={`rotate(-35 ${x} ${labelUp ? cy - 22 : cy + 34})`}
               >
-                {st}
+                {displayStationName(st)}
               </text>
             </g>
           );

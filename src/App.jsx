@@ -120,9 +120,19 @@ export default function App() {
 
   const underlyingIds = getUnderlyingPhysicalIds(selectedLine);
   const physicalStations = getPhysicalStations(selectedLine);
-  const lineTrips = underlyingIds.flatMap((pid) =>
-    (trips[pid] || []).map((t) => ({ ...t, _pid: pid, _pidName: ALL_LINES.find((l) => l.id === pid)?.name || pid }))
-  );
+  // 각 기록의 역 구간 수는 그 기록이 실제로 속한 물리 노선(_pid)의 역 목록 기준으로 세야 한다.
+  // 예: "1호선 경부·장항선 계통"과 "대경선"은 경부선을 공유하므로, 대경선에서 기록한 김천↔경산
+  // 구간도 1호선 쪽 화면에 같이 뜨는데, 이때 selectedLine(1호선)의 역 목록에는 김천·경산이 아예
+  // 없어서 indexOf가 둘 다 -1이 되어 "(1개 역 구간)"처럼 엉뚱한 값이 나오던 버그가 있었다.
+  const lineTrips = underlyingIds.flatMap((pid) => {
+    const pidLine = ALL_LINES.find((l) => l.id === pid);
+    return (trips[pid] || []).map((t) => ({
+      ...t,
+      _pid: pid,
+      _pidName: pidLine?.name || pid,
+      _pidStations: getPhysicalStations(pidLine),
+    }));
+  });
   const covered = deriveServiceCoverage(selectedLine, trips);
   const sharingLines = ALL_LINES.filter((l) => {
     if (l.id === selectedLine.id) return false;

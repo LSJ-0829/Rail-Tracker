@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { todayStr } from "../hooks/useProgress";
+import { displayStationName } from "../utils/railData";
 
-const VIA_SUGGESTIONS = ["전철/지하철", "무궁화호", "ITX-새마을", "새마을호", "KTX", "대경선", "누리로", "기타"];
+const VIA_SUGGESTIONS = [
+  "KTX", "KTX산천", "KTX이음", "KTX청룡", "ITX새마을", "ITX마음", "ITX청춘",
+  "새마을호", "무궁화호", "누리로", "전철/지하철", "기타",
+];
 
 /**
  * stations: 이 폼에서 선택 가능한 역 목록 (물리 선로 전체 기준 - 서비스가 일부만
@@ -39,7 +43,7 @@ export default function TripForm({ stations, onAdd }) {
         <select value={from} onChange={(e) => setFrom(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
           {stations.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {displayStationName(s)}
             </option>
           ))}
         </select>
@@ -49,7 +53,7 @@ export default function TripForm({ stations, onAdd }) {
         <select value={to} onChange={(e) => setTo(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
           {stations.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {displayStationName(s)}
             </option>
           ))}
         </select>

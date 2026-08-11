@@ -23,8 +23,8 @@ const PASSENGER_PHYSICAL_LINE_IDS = new Set([
 ]);
 
 // 역 이름 -> [{ lineId, lineName, stationIdx }] 목록. 위치(stationIdx)를 함께 저장해두는 이유는
-// 여객 표시(hasPassenger)도 동명이역 오탐(예: 7호선 "상동"(부천) vs 경부선 "상동"(밀양))을 걸러내려면
-// 그 역이 물리 노선 상 정확히 어디에 있는지를 알아야 지역(getStationRegions)을 계산할 수 있기 때문.
+// 여객 표시(hasPassenger)도 지역이 서로 다른 동명이역을 걸러내려면 그 역이 물리 노선 상 정확히
+// 어디에 있는지를 알아야 지역(getStationRegions)을 계산할 수 있기 때문.
 const PASSENGER_STATION_ENTRIES = {};
 ALL_LINES.forEach((l) => {
   if (PASSENGER_PHYSICAL_LINE_IDS.has(l.id)) {
@@ -36,6 +36,25 @@ ALL_LINES.forEach((l) => {
     });
   }
 });
+
+// 이름만 같을 뿐 실제로는 다른 곳에 있는 역(동명이역)은 데이터 안에서 "판교(서천)"처럼 구분
+// 표기해서 방문 기록·구간 기록이 서로 섞이지 않게 한다(위 주석 참고). 다만 사용자에게는 굳이
+// 그 구분 표기를 보여줄 필요가 없으므로, 화면에 역 이름을 표시하는 모든 곳(역 마커 라벨,
+// 구간 선택 드롭다운, 기록 목록 등)에서는 이 함수를 거쳐 원래 역명만 보여준다.
+// 주의: "진부(오대산)"처럼 괄호가 실제 공식 역명의 일부인 경우도 있어서, 괄호를 무조건 잘라내는
+// 정규식 대신 이 세션에서 실제로 구분 표기를 추가한 역만 명시적으로 나열한다.
+const DISPLAY_NAME_OVERRIDES = {
+  '판교(서천)': '판교',
+  '상동(밀양)': '상동',
+  '양원(봉화)': '양원',
+  '쌍용(영월)': '쌍용',
+  '가좌(인천)': '가좌',
+  '양평(영등포)': '양평',
+};
+
+export function displayStationName(name) {
+  return DISPLAY_NAME_OVERRIDES[name] || name;
+}
 
 export function hasOfficialColor(line) {
   return Boolean(line && line.color);
@@ -196,11 +215,6 @@ export function getTransferInfo(currentLine) {
       if (l.id === currentLine.id) return;
       if (!l.stations.includes(st)) return;
 
-      // 순수 동명이역 예외: 지역/노선군이 겹쳐서 다른 필터를 통과하더라도, 실제로는 별개 위치인
-      // 역 이름 우연 일치(예: 중앙선 "양평"(경기 양평) vs 5호선 "양평"(서울 영등포), 경의중앙선
-      // "가좌"(서울 서대문) vs 인천 2호선 "가좌"(인천 서구))는 여기서 직접 걸러낸다.
-      if (isPureNameCollision(st, currentLine.id, l.id)) return;
-
       const otherFamily = getLineFamily(l);
 
       // Check explicit branch junction exceptions (성수, 신도림, 강동, 구로, 병점, 금천구청, 가좌)
@@ -277,11 +291,10 @@ export function getTransferInfo(currentLine) {
       }
     });
 
-    // 순수 동명이역/지역 필터를 여객열차 표시에도 똑같이 적용한다. (예: 장항선 "판교"(충남 서천)가
-    // 신분당선·경강선 "판교"(성남)에 잘못 "여객열차 정차" 배지를 붙이는 것을 막기 위함)
+    // 지역 필터를 여객열차 표시에도 똑같이 적용한다. (동명이역 자체는 이제 데이터에서
+    // "판교(서천)"처럼 구분 표기해 이름이 겹치지 않으므로, 여기서는 지역만 확인하면 된다.)
     const currentStRegions = getStationRegions(currentLine, stIdx);
     const passengerEntries = (PASSENGER_STATION_ENTRIES[st] || []).filter((p) => {
-      if (isPureNameCollision(st, currentLine.id, p.lineId)) return false;
       if (p.lineId === currentLine.id) return true;
       const otherLine = ALL_LINES.find((x) => x.id === p.lineId);
       const otherRegions = getStationRegions(otherLine, p.stationIdx);
@@ -314,54 +327,12 @@ const FAMILY_REPRESENTATIVES = {
   '경의중앙선': 'gj',
 };
 
-// 이름만 우연히 같을 뿐 실제로는 다른 위치에 있는 역 쌍(순수 동명이역).
-// 지역/노선군 필터를 다 통과하더라도 이 목록에 있으면 환승역으로 취급하지 않는다.
-const PURE_NAME_COLLISIONS = {
-  '양평': [
-    ['jungang-full', 's5-hanam'], // 경기 양평군 중앙선 양평역 vs 서울 영등포구 5호선 양평역
-    ['jungang-full', 's5-macheon'],
-    ['gj', 's5-hanam'], // 경의·중앙선(gj)도 중앙선 구간에 양평역을 포함하므로 같은 예외가 필요
-    ['gj', 's5-macheon'],
-    ['seoul5-full', 'gj'], // "노선으로 찾기"의 물리 5호선(seoul5-full)에서 봐도 마찬가지
-  ],
-  '가좌': [
-    ['gj', 'ic2'], // 서울 서대문구 경의중앙선 가좌역 vs 인천 서구 인천 2호선 가좌역
-    ['gyeongui-seoul', 'ic2'],
-    ['gyeongui-full', 'ic2'],
-  ],
-  '판교': [
-    // 경기 성남시 신분당선·경강선 판교역 vs 충남 서천군 장항선 판교역.
-    // 장항선(janghang-full)은 regions: ["capital"] 하나로만 표시돼 있어(실제로는 충남·전북까지 지남)
-    // regionBoundaries 기반 지역 필터를 못 지나가므로 여기서 직접 예외 처리한다.
-    ['janghang-full', 'sbd'],
-    ['janghang-full', 'gg'],
-    ['janghang-full', 'gyeonggang-pangyo-full'],
-  ],
-  '양원': [
-    // 경기 구리시 경의중앙선/중앙선 양원역 vs 경북 봉화군 영동선 양원역(승부역 인근 오지 승강장).
-    // 영동선(yeongdong-full)도 regions: ["capital"] 하나뿐이라 지역 필터를 통과 못 함.
-    ['gj', 'yeongdong-full'],
-    ['jungang-full', 'yeongdong-full'], // 물리 노선끼리도 "노선으로 찾기"의 여객열차 표시에서 서로 오염됨
-  ],
-  '쌍용': [
-    // 충남 아산시 1호선 경부·장항선 계통/장항선 쌍용역 vs 강원 영월군 태백선 쌍용역.
-    // 태백선(taebaek-full)도 regions: ["capital"] 하나뿐이라 지역 필터를 통과 못 하고,
-    // 정선아리랑열차(atrain)·서해금빛열차(gtrain)도 관광열차라 networkId가 "tourist" 하나로 뭉뚱그려져
-    // 서로 다른 지역이어도 같은 역처럼 잡힌다.
-    ['taebaek-full', 's1-gyeongbu'],
-    ['taebaek-full', 'janghang-full'],
-    ['taebaek-full', 'gtrain'],
-    ['atrain', 's1-gyeongbu'],
-    ['atrain', 'janghang-full'],
-    ['atrain', 'gtrain'],
-  ],
-};
-
-function isPureNameCollision(st, idA, idB) {
-  const pairs = PURE_NAME_COLLISIONS[st];
-  if (!pairs) return false;
-  return pairs.some(([a, b]) => (a === idA && b === idB) || (a === idB && b === idA));
-}
+// 이름만 우연히 같을 뿐 실제로는 다른 위치에 있는 역 쌍(순수 동명이역)은 예전에는 예외 목록으로
+// 걸러냈지만, 그 방식은 "환승 배지"만 가려줄 뿐 방문 기록(visited)이나 구간 기록(trips)처럼
+// 역 이름을 그대로 키로 쓰는 다른 모든 곳까지는 못 막아서 예를 들어 신분당선 판교(성남)를
+// 방문 체크하면 장항선 판교(서천)도 같이 방문 처리되는 문제가 있었다. 지금은 데이터
+// 자체에서 "판교(서천)"처럼 두 역을 아예 다른 문자열로 구분해 저장해 근본적으로 막는다
+// (아래 DISPLAY_NAME_OVERRIDES가 화면에는 원래 역명만 보이도록 해준다).
 
 // 물리 노선(경부선 등)이 여러 지역을 관통할 때, 해당 역이 실제로 속한 지역만 반환한다.
 // regionBoundaries가 없으면(단일 지역 노선 등) 기존처럼 regions 배열 전체를 반환한다.
