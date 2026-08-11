@@ -92,7 +92,8 @@
       "신림", "신대방", "구로디지털단지", "대림", "신도림", "문래", "영등포구청", "당산", "합정", "홍대입구",
       "신촌", "이대", "아현", "충정로", "시청"
     ],
-    "physicalLineId": "seoul2-full"
+    "physicalLineId": "seoul2-full",
+    "note": "순환선이라 시청이 배열 처음·끝에 두 번 나옴. indexOf 기반 코드는 항상 첫 번째(0번) 시청만 찾으므로, 충정로→시청처럼 폐색 구간만 탄 기록도 전체 순환 구간을 다 탄 것으로 계산될 수 있음(알려진 한계)"
   },
   {
     "id": "s2b1",
@@ -538,7 +539,7 @@
     "networkId": "busan",
     "kind": "urban",
     "stations": [
-      "부전", "거제해맞이", "거제", "교대", "동래", "안락", "재송", "센텀", "신해운대", "송정",
+      "부전", "거제해맞이", "거제", "교대", "동래", "안락", "부산원동", "재송", "센텀", "신해운대", "송정",
       "오시리아", "기장", "일광", "좌천", "월내", "서생", "남창", "망양", "덕하", "개운포", "태화강"
     ],
     "physicalLineId": "donghae-full"
@@ -623,12 +624,12 @@
     "networkId": "physical",
     "kind": "physical",
     "stations": [
-      "행신", "서울역", "용산", "영등포", "광명", "수원", "천안아산", "오송", "대전역", "김천구미",
+      "행신", "서울역", "용산", "영등포", "광명", "천안아산", "오송", "대전역", "김천구미",
       "동대구역", "신경주", "울산", "부산역"
     ],
     "regions": ["capital", "daejeon", "daegu", "busan"],
     "regionBoundaries": [
-      { "region": "capital", "upTo": "수원" },
+      { "region": "capital", "upTo": "광명" },
       { "region": "daejeon", "upTo": "대전역" },
       { "region": "daegu", "upTo": "동대구역" },
       { "region": "busan", "upTo": "부산역" }
@@ -794,11 +795,13 @@
     "networkId": "physical",
     "kind": "physical",
     "stations": [
-      "부전", "거제해맞이", "거제", "교대", "동래", "안락", "재송", "센텀", "신해운대", "송정",
-      "오시리아", "기장", "일광", "좌천", "월내", "서생", "남창", "망양", "덕하", "개운포",
-      "태화강", "북울산", "신경주", "포항", "월포", "장사", "강구", "영덕", "영해", "병곡",
-      "후포", "평해", "기성", "원남", "울진", "죽변", "북면", "임원", "근덕", "삼척", "동해"
+      "부산진", "범일", "부전", "거제해맞이", "거제", "교대", "동래", "안락", "부산원동", "재송",
+      "센텀", "신해운대", "송정", "오시리아", "기장", "일광", "좌천", "월내", "서생", "남창",
+      "망양", "덕하", "개운포", "태화강", "북울산", "신경주", "포항", "월포", "장사", "강구",
+      "영덕", "영해", "병곡", "후포", "평해", "기성", "원남", "울진", "죽변", "북면", "임원",
+      "근덕", "동해", "추암", "삼척해변", "삼척"
     ],
+    "note": "부산진~삼척 전체 구간. 동해~삼척은 옛 삼척선 구간(2025-01 동해선 편입)",
     "regions": ["busan", "daegu"],
     "regionBoundaries": [
       { "region": "busan", "upTo": "북울산" },
@@ -934,7 +937,8 @@
       "신림", "신대방", "구로디지털단지", "대림", "신도림", "문래", "영등포구청", "당산", "합정", "홍대입구",
       "신촌", "이대", "아현", "충정로", "시청"
     ],
-    "regions": ["capital"]
+    "regions": ["capital"],
+    "note": "순환선이라 시청이 배열 처음·끝에 두 번 나옴. indexOf 기반 코드는 항상 첫 번째(0번) 시청만 찾으므로, 충정로→시청처럼 폐색 구간만 탄 기록도 전체 순환 구간을 다 탄 것으로 계산될 수 있음(알려진 한계)"
   },
   {
     "id": "seoul2-seongsu-full",
@@ -1213,5 +1217,275 @@
     "kind": "physical",
     "stations": ["운정중앙", "킨텍스", "대곡", "연신내", "서울역", "수서"],
     "regions": ["capital"]
+  },
+  {
+    "id": "daegu-seon-full",
+    "name": "대구선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": [
+      "가천", "동대구역", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월",
+      "각산", "안심", "대구한의대병원", "하양", "금호", "영천"
+    ],
+    "regions": ["daegu"],
+    "note": "경부선 가천~중앙선 영천, 대구1호선 안심~하양 연장 구간과 선로 공유"
+  },
+  {
+    "id": "pyeongtaek-seon-full",
+    "name": "평택선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["안중", "청북", "평택"],
+    "regions": ["capital"],
+    "note": "경부선~서해선 연결, ITX-마음 운행"
+  },
+  {
+    "id": "gaya-seon-full",
+    "name": "가야선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["사상", "주례", "가야", "범일"],
+    "regions": ["busan"],
+    "note": "경부선 사상~동해선 범일, 동해선 계통 일부 운행"
+  },
+  {
+    "id": "osong-seon-full",
+    "name": "오송선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["서창신호장", "오송"],
+    "regions": ["daejeon"],
+    "note": "경부선~충북선 연결선, 서울~제천 무궁화호 경유. 경부고속선·호남고속선의 오송역과 동일 지역(daejeon) 버킷으로 통일"
+  },
+  {
+    "id": "cheonan-jikgyeol-full",
+    "name": "천안직결선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["두정", "천안"],
+    "regions": ["capital"],
+    "note": "경부선~장항선 연결선, 장항선 여객열차 및 1호선 경부·장항선 계통 경유"
+  },
+  {
+    "id": "mokpo-boseong-full",
+    "name": "목포보성선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["신보성", "장동", "장흥", "강진", "해남", "염암", "임성리"],
+    "regions": ["gwangju"],
+    "note": "경전선 신보성~호남선 임성리, 2025년 개통. 무궁화·새마을호 운행"
+  },
+  {
+    "id": "gyowoe-seon-full",
+    "name": "교외선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["대곡", "원릉", "일영", "장흥", "송추", "의정부"],
+    "regions": ["capital"],
+    "note": "능곡~대곡 구간은 경의선과 선로 공유. 2025년 무궁화호로 재개통"
+  },
+  {
+    "id": "gyeonggang-gangneung-full",
+    "name": "경강선 (만종~강릉)",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["만종", "횡성", "둔내", "평창", "진부(오대산)", "강릉"],
+    "regions": ["capital"],
+    "note": "기존 gyeonggang-pangyo-full(판교~여주)과 별개 노선. KTX-이음 강릉선"
+  },
+  {
+    "id": "vtrain",
+    "name": "백두대간협곡열차 (V-train)",
+    "color": "#1B5E20",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["영주", "봉화", "춘양", "분천", "양원", "승부", "철암"],
+    "physicalLineId": "yeongdong-full",
+    "note": "핵심 협곡 구간은 분천~철암(27.7km). 영주~분천 구간은 첫차만 경유"
+  },
+  {
+    "id": "atrain",
+    "name": "정선아리랑열차 (A-train)",
+    "color": "#F9A825",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["제천", "쌍용", "영월", "예미", "민둥산", "별어곡", "선평", "정선", "나전", "아우라지"],
+    "physicalSegments": [
+      { "physicalLineId": "taebaek-full", "upTo": "민둥산" },
+      { "physicalLineId": "jeongseon-full", "upTo": "아우라지" }
+    ],
+    "note": "2026-05-22부터 제천~아우라지로 단축 운행 중(민둥산~별어곡 낙석 피해로 기존 청량리~아우라지에서 구간 변경)"
+  },
+  {
+    "id": "gtrain",
+    "name": "서해금빛열차 (G-train)",
+    "color": "#C9A227",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": [
+      "용산", "노량진", "대방", "영등포", "신길", "신도림", "구로", "가산디지털단지", "독산",
+      "금천구청", "석수", "관악", "안양", "명학", "금정", "군포", "당정", "의왕", "성균관대",
+      "화서", "수원", "세류", "병점", "세마", "오산대", "오산", "진위", "송탄", "서정리",
+      "평택지제", "평택", "성환", "직산", "두정", "천안", "봉명", "쌍용", "아산", "탕정",
+      "배방", "온양온천", "신창", "도고온천", "신례원", "예산", "삽교", "홍성", "광천", "청소",
+      "대천", "웅천", "판교", "서천", "장항", "군산", "익산"
+    ],
+    "physicalSegments": [
+      { "physicalLineId": "gyeongbu-full", "upTo": "천안" },
+      { "physicalLineId": "janghang-full", "upTo": "익산" }
+    ],
+    "note": "용산~익산, 일반 장항선 루트와 동일 구간 운행"
+  },
+  {
+    "id": "strain-jeolla",
+    "name": "남도해양열차 (S-train, 전라선)",
+    "color": "#0077B6",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": [
+      "서울역", "영등포", "수원", "천안", "대전역", "서대전", "익산", "전주", "임실", "남원",
+      "곡성", "구례구", "순천", "여수엑스포"
+    ],
+    "physicalSegments": [
+      { "physicalLineId": "gyeongbu-full", "upTo": "대전역" },
+      { "physicalLineId": "honam-full", "upTo": "익산" },
+      { "physicalLineId": "jeolla-full", "upTo": "여수엑스포" }
+    ],
+    "note": "서울~여수엑스포"
+  },
+  {
+    "id": "strain-gyeongjeon",
+    "name": "남도해양열차 (S-train, 경전선)",
+    "color": "#0096C7",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": [
+      "부산역", "사상", "화명", "물금", "원동", "삼랑진", "한림정", "진영", "진례", "창원중앙",
+      "창원", "마산", "중리", "함안", "군북", "반성", "진주", "완사", "북천", "하동", "진상",
+      "광양", "순천", "벌교", "조성", "예당", "득량", "보성", "명봉", "능주", "화순", "효천",
+      "남구주", "광주송정역"
+    ],
+    "physicalSegments": [
+      { "physicalLineId": "gyeongbu-full", "upTo": "삼랑진" },
+      { "physicalLineId": "gyeongjeon-full", "upTo": "광주송정역" }
+    ],
+    "note": "부산~광주송정. 2025-09-27 목포보성선 개통 이후 목포까지 연장되었으나, 보성~신보성 연결 구간(보성연결선) 데이터가 없어 이 연장 구간은 아직 반영하지 못함"
+  },
+  {
+    "id": "badatrain",
+    "name": "바다열차",
+    "color": "#00B4D8",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["강릉", "정동진", "묵호", "동해", "추암", "삼척해변"],
+    "physicalSegments": [
+      { "physicalLineId": "yeongdong-full", "upTo": "동해" },
+      { "physicalLineId": "donghae-full", "upTo": "삼척해변" }
+    ],
+    "note": "강릉~삼척해변"
+  },
+  {
+    "id": "donghae-santa-train",
+    "name": "동해산타열차",
+    "color": "#D62839",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["강릉", "정동진", "묵호", "동해", "신기", "도계", "동백산", "철암", "석포", "승부", "양원", "분천"],
+    "physicalLineId": "yeongdong-full",
+    "note": "강릉~분천(산타마을역), 겨울철 한정 운행"
+  },
+  {
+    "id": "dmz-peace-train-gyeongui",
+    "name": "DMZ 평화이음열차 (경의선)",
+    "color": "#4A4E69",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["서울역", "문산", "운천", "임진강", "도라산"],
+    "physicalLineId": "gyeongui-full",
+    "note": "평화생명관광열차. 용산역에서도 탑승 가능(용산~서울역 구간은 별도 반영 안 함)"
+  },
+  {
+    "id": "dmz-peace-train-gyeongwon",
+    "name": "DMZ 평화이음열차 (경원선)",
+    "color": "#6B6E8C",
+    "networkId": "tourist",
+    "kind": "urban",
+    "stations": ["용산", "의정부", "동두천", "연천", "신탄리", "백마고지"],
+    "physicalLineId": "gw-full",
+    "note": "2019년 4월부터 경원선 복선전철화 공사로 운행 중단 상태(재개 시점 미정)"
+  },
+  {
+    "id": "haeundae-blueline-full",
+    "name": "해운대 블루라인파크 해변열차",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["미포", "청사포", "송정"],
+    "regions": ["busan"],
+    "note": "옛 동해남부선 미포~송정 폐선 부지. 확인된 주요 정거장 3곳만 등록. 간이정거장 4곳은 공식 사이트(bluelinepark.com/mapList.do)에서 이름·순서 확인 필요"
+  },
+  {
+    "id": "jeongseon-railbike-full",
+    "name": "정선 레일바이크",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["구절리", "아우라지"],
+    "regions": ["capital"],
+    "note": "옛 정선선 구절리 방향 폐선구간, 7.2km. 2005년 개장, 국내 최초 레일바이크"
+  },
+  {
+    "id": "gokseong-traintown-full",
+    "name": "곡성 섬진강 기차마을",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["곡성", "가정"],
+    "regions": ["gwangju"],
+    "note": "옛 전라선 곡성~가정 폐선구간, 10km. 증기기관차 관광열차 운행"
+  },
+  {
+    "id": "samcheok-choochoo-full",
+    "name": "삼척 하이원추추파크",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["통리", "추추스테이션", "나한정"],
+    "regions": ["capital"],
+    "note": "옛 영동선 통리~나한정 스위치백 폐선구간. 추추스테이션~나한정 6.8km 스위치백트레인, 통리~추추스테이션 레일바이크"
+  },
+  {
+    "id": "wangsong-railbike-full",
+    "name": "왕송호수 레일바이크",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["시작점", "반환점"],
+    "regions": ["capital"],
+    "note": "의왕 왕송호수, 국가철도 폐선 부지가 아닌 별도 트랙이라 정거장 이름 없이 시작점·반환점만 등록"
+  },
+  {
+    "id": "wolmi-seatrain-full",
+    "name": "월미바다열차 (월미도 모노레일)",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["월미바다", "월미공원", "월미문화의거리", "박물관"],
+    "regions": ["capital"],
+    "note": "인천 월미도 순환 모노레일, 6.1km. 국가철도 폐선 부지가 아닌 전용 궤도. 실제로는 박물관역에서 월미바다역으로 돌아오는 순환선이지만, 첫 역을 배열 끝에 중복 등록하면 서울 2호선과 같은 순환선 indexOf 한계가 재현되므로 편도 4개 역만 등록"
   }
 ]

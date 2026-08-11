@@ -6,12 +6,18 @@ export default function LineDiagram({ line, visited, covered, onToggleStation, s
   const height = 190;
   const cy = 100;
 
+  // 구간(두 역 사이) 색은 "양 끝 역을 둘 다 지나는 도시철도 노선"이 있을 때만 그 노선 색을 쓴다.
+  // 예전에는 두 역 중 한쪽만 어떤 노선을 지나도(styles[i] 또는 styles[i+1] 중 하나라도 colored) 그
+  // 색을 구간 전체에 칠했는데, 이러면 예를 들어 경부선의 신탄진↔대전역 구간처럼 대전역에서만
+  // 대전1호선과 만나고 신탄진은 대전1호선과 무관한데도 그 사이 전체가 대전1호선 색으로 잘못 칠해졌다.
   const segmentColor = (i) => {
-    const a = styles[i];
-    const b = styles[i + 1];
-    if (a && a.colored) return a.color;
-    if (b && b.colored) return b.color;
-    return "#111827";
+    if (line.color) return line.color; // 노선 자체가 공식 색을 갖고 있으면 그대로 사용
+    const stA = stations[i];
+    const stB = stations[i + 1];
+    const urbanA = (transferInfo && transferInfo[stA] && transferInfo[stA].urban) || [];
+    const urbanB = (transferInfo && transferInfo[stB] && transferInfo[stB].urban) || [];
+    const common = urbanA.find((u) => urbanB.some((v) => v.id === u.id));
+    return common ? common.color : "#111827";
   };
 
   return (

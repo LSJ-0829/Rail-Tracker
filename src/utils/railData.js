@@ -22,14 +22,17 @@ const PASSENGER_PHYSICAL_LINE_IDS = new Set([
   'seohae-south-full'
 ]);
 
-const PASSENGER_STATION_MAP = {};
+// 역 이름 -> [{ lineId, lineName, stationIdx }] 목록. 위치(stationIdx)를 함께 저장해두는 이유는
+// 여객 표시(hasPassenger)도 동명이역 오탐(예: 7호선 "상동"(부천) vs 경부선 "상동"(밀양))을 걸러내려면
+// 그 역이 물리 노선 상 정확히 어디에 있는지를 알아야 지역(getStationRegions)을 계산할 수 있기 때문.
+const PASSENGER_STATION_ENTRIES = {};
 ALL_LINES.forEach((l) => {
   if (PASSENGER_PHYSICAL_LINE_IDS.has(l.id)) {
-    (l.stations || []).forEach((st) => {
-      if (!PASSENGER_STATION_MAP[st]) {
-        PASSENGER_STATION_MAP[st] = new Set();
+    (l.stations || []).forEach((st, idx) => {
+      if (!PASSENGER_STATION_ENTRIES[st]) {
+        PASSENGER_STATION_ENTRIES[st] = [];
       }
-      PASSENGER_STATION_MAP[st].add(l.name);
+      PASSENGER_STATION_ENTRIES[st].push({ lineId: l.id, lineName: l.name, stationIdx: idx });
     });
   }
 });
@@ -126,6 +129,10 @@ export function computePhysicalLineStats(trips) {
   });
 }
 
+// 알려진 한계: 서울 2호선(seoul2-full/s2)처럼 순환선이라 배열 처음·끝에 같은 역 이름(시청)이
+// 두 번 나오는 노선에서는 indexOf가 항상 첫 번째(0번) 시청만 찾는다. 그래서 "충정로→시청"처럼
+// 폐색 구간 한 정거장만 탄 기록도 start=0으로 계산되어 순환 구간 전체를 탄 것처럼 잡힐 수 있다.
+// 실사용 빈도가 낮아 당장 고치진 않았지만, 순환선을 새로 추가할 때 같은 문제가 재현될 수 있다.
 export function derivedPhysicalSegments(stations, tripList) {
   const covered = new Set();
   if (!tripList || !Array.isArray(tripList)) return covered;
@@ -270,9 +277,23 @@ export function getTransferInfo(currentLine) {
       }
     });
 
-    const passengerSet = PASSENGER_STATION_MAP[st];
-    const hasPassenger = Boolean(passengerSet && passengerSet.size > 0);
-    const passengerLines = hasPassenger ? Array.from(passengerSet).sort() : [];
+    // 순수 동명이역/지역 필터를 여객열차 표시에도 똑같이 적용한다. (예: 장항선 "판교"(충남 서천)가
+    // 신분당선·경강선 "판교"(성남)에 잘못 "여객열차 정차" 배지를 붙이는 것을 막기 위함)
+    const currentStRegions = getStationRegions(currentLine, stIdx);
+    const passengerEntries = (PASSENGER_STATION_ENTRIES[st] || []).filter((p) => {
+      if (isPureNameCollision(st, currentLine.id, p.lineId)) return false;
+      if (p.lineId === currentLine.id) return true;
+      const otherLine = ALL_LINES.find((x) => x.id === p.lineId);
+      const otherRegions = getStationRegions(otherLine, p.stationIdx);
+      if (currentStRegions.length > 0 && otherRegions.length > 0 && !currentStRegions.some((r) => otherRegions.includes(r))) {
+        return false;
+      }
+      return true;
+    });
+    const hasPassenger = passengerEntries.length > 0;
+    const passengerLines = hasPassenger
+      ? Array.from(new Set(passengerEntries.map((p) => p.lineName))).sort()
+      : [];
 
     if (uniqueUrban.length > 0 || hasPassenger) {
       transferMap[st] = {
@@ -307,6 +328,32 @@ const PURE_NAME_COLLISIONS = {
     ['gj', 'ic2'], // 서울 서대문구 경의중앙선 가좌역 vs 인천 서구 인천 2호선 가좌역
     ['gyeongui-seoul', 'ic2'],
     ['gyeongui-full', 'ic2'],
+  ],
+  '판교': [
+    // 경기 성남시 신분당선·경강선 판교역 vs 충남 서천군 장항선 판교역.
+    // 장항선(janghang-full)은 regions: ["capital"] 하나로만 표시돼 있어(실제로는 충남·전북까지 지남)
+    // regionBoundaries 기반 지역 필터를 못 지나가므로 여기서 직접 예외 처리한다.
+    ['janghang-full', 'sbd'],
+    ['janghang-full', 'gg'],
+    ['janghang-full', 'gyeonggang-pangyo-full'],
+  ],
+  '양원': [
+    // 경기 구리시 경의중앙선/중앙선 양원역 vs 경북 봉화군 영동선 양원역(승부역 인근 오지 승강장).
+    // 영동선(yeongdong-full)도 regions: ["capital"] 하나뿐이라 지역 필터를 통과 못 함.
+    ['gj', 'yeongdong-full'],
+    ['jungang-full', 'yeongdong-full'], // 물리 노선끼리도 "노선으로 찾기"의 여객열차 표시에서 서로 오염됨
+  ],
+  '쌍용': [
+    // 충남 아산시 1호선 경부·장항선 계통/장항선 쌍용역 vs 강원 영월군 태백선 쌍용역.
+    // 태백선(taebaek-full)도 regions: ["capital"] 하나뿐이라 지역 필터를 통과 못 하고,
+    // 정선아리랑열차(atrain)·서해금빛열차(gtrain)도 관광열차라 networkId가 "tourist" 하나로 뭉뚱그려져
+    // 서로 다른 지역이어도 같은 역처럼 잡힌다.
+    ['taebaek-full', 's1-gyeongbu'],
+    ['taebaek-full', 'janghang-full'],
+    ['taebaek-full', 'gtrain'],
+    ['atrain', 's1-gyeongbu'],
+    ['atrain', 'janghang-full'],
+    ['atrain', 'gtrain'],
   ],
 };
 

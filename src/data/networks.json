@@ -20,6 +20,10 @@
     "name": "대전 도시철도"
   },
   {
+    "id": "tourist",
+    "name": "관광열차"
+  },
+  {
     "id": "physical",
     "name": "전국 일반철도 노선"
   }
