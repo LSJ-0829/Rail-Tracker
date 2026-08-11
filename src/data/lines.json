@@ -1243,9 +1243,9 @@
     "color": null,
     "networkId": "physical",
     "kind": "physical",
-    "stations": ["안중", "청북", "평택"],
+    "stations": ["안중", "창내", "평택"],
     "regions": ["capital"],
-    "note": "경부선~서해선 연결, ITX-마음 운행"
+    "note": "경부선~서해선 연결, ITX-마음 운행. 코레일 철도노선도(2026.1.1) 대조로 확인 - 중간역은 \"청북\"이 아니라 \"창내\""
   },
   {
     "id": "gaya-seon-full",
@@ -1493,5 +1493,25 @@
     "stations": ["월미바다", "월미공원", "월미문화의거리", "박물관"],
     "regions": ["capital"],
     "note": "인천 월미도 순환 모노레일, 6.1km. 국가철도 폐선 부지가 아닌 전용 궤도. 실제로는 박물관역에서 월미바다역으로 돌아오는 순환선이지만, 첫 역을 배열 끝에 중복 등록하면 서울 2호선과 같은 순환선 indexOf 한계가 재현되므로 편도 4개 역만 등록"
+  },
+  {
+    "id": "bujeon-seon-full",
+    "name": "부전선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["가야", "부전"],
+    "regions": ["busan"],
+    "note": "가야~부전, 2.2km. 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음)"
+  },
+  {
+    "id": "uam-seon-full",
+    "name": "우암선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["부산진", "신선대"],
+    "regions": ["busan"],
+    "note": "부산진~신선대(우암부두), 여객 운행계통 없는 화물 전용 지선(OSM route=tracks 확인, 정차역 없음)"
   }
 ]
