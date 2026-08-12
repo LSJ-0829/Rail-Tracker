@@ -1448,9 +1448,20 @@
     "networkId": "physical",
     "kind": "physical",
     "category": "tourist",
-    "stations": ["미포", "청사포", "송정"],
+    "stations": ["미포", "달맞이터널", "해월전망대", "청사포", "다릿돌전망대", "구덕포", "송정"],
     "regions": ["busan"],
-    "note": "옛 동해남부선 미포~송정 폐선 부지. 확인된 주요 정거장 3곳만 등록. 간이정거장 4곳은 공식 사이트(bluelinepark.com/mapList.do)에서 이름·순서 확인 필요"
+    "note": "옛 동해남부선 미포~송정 폐선 부지, 4.8km. 2026년 확인, 공식 7개 정거장 전체 반영"
+  },
+  {
+    "id": "haeundae-skycapsule-full",
+    "name": "해운대 스카이캡슐",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "category": "tourist",
+    "stations": ["미포", "청사포"],
+    "regions": ["busan"],
+    "note": "해운대 블루라인파크 소속이나 해변열차(haeundae-blueline-full)와 별도 궤도(공중 레일 7~10m, 2km). 미포~청사포만 운행, 송정까지 안 감. 중간 정차 여부는 재확인 권장"
   },
   {
     "id": "jeongseon-railbike-full",
@@ -1498,7 +1509,7 @@
   },
   {
     "id": "wolmi-seatrain-full",
-    "name": "월미바다열차 (월미도 모노레일)",
+    "name": "월미바다열차",
     "color": null,
     "networkId": "physical",
     "kind": "physical",
@@ -1506,6 +1517,76 @@
     "stations": ["월미바다", "월미공원", "월미문화의거리", "박물관"],
     "regions": ["capital"],
     "note": "인천 월미도 순환 모노레일, 6.1km. 국가철도 폐선 부지가 아닌 전용 궤도. 실제로는 박물관역에서 월미바다역으로 돌아오는 순환선이지만, 첫 역을 배열 끝에 중복 등록하면 서울 2호선과 같은 순환선 indexOf 한계가 재현되므로 편도 4개 역만 등록"
+  },
+  {
+    "id": "wolmi-seatrain",
+    "name": "월미바다열차",
+    "color": null,
+    "networkId": "capital",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["월미바다", "월미공원", "월미문화의거리", "박물관"],
+    "physicalLineId": "wolmi-seatrain-full"
+  },
+  {
+    "id": "haeundae-blueline",
+    "name": "해운대 블루라인파크 해변열차",
+    "color": null,
+    "networkId": "busan",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["미포", "달맞이터널", "해월전망대", "청사포", "다릿돌전망대", "구덕포", "송정"],
+    "physicalLineId": "haeundae-blueline-full"
+  },
+  {
+    "id": "haeundae-skycapsule",
+    "name": "해운대 스카이캡슐",
+    "color": null,
+    "networkId": "busan",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["미포", "청사포"],
+    "physicalLineId": "haeundae-skycapsule-full"
+  },
+  {
+    "id": "jeongseon-railbike",
+    "name": "정선 레일바이크",
+    "color": null,
+    "networkId": "capital",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["구절리", "아우라지"],
+    "physicalLineId": "jeongseon-railbike-full"
+  },
+  {
+    "id": "gokseong-traintown",
+    "name": "곡성 섬진강 기차마을",
+    "color": null,
+    "networkId": "gwangju",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["곡성", "가정"],
+    "physicalLineId": "gokseong-traintown-full"
+  },
+  {
+    "id": "samcheok-choochoo",
+    "name": "삼척 하이원추추파크",
+    "color": null,
+    "networkId": "capital",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["통리", "추추스테이션", "나한정"],
+    "physicalLineId": "samcheok-choochoo-full"
+  },
+  {
+    "id": "wangsong-railbike",
+    "name": "왕송호수 레일바이크",
+    "color": null,
+    "networkId": "capital",
+    "kind": "urban",
+    "category": "tourist",
+    "stations": ["시작점", "반환점"],
+    "physicalLineId": "wangsong-railbike-full"
   },
   {
     "id": "bujeon-seon-full",
