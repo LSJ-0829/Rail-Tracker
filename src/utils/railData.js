@@ -308,18 +308,23 @@ export function getTransferInfo(currentLine) {
       }
     });
 
+    // 여객열차 정차 표시는 "운행계통으로 찾기"(도시철도 kind: 'urban')에서만 보여준다.
+    // "노선으로 찾기"(kind: 'physical', 경부선 등 물리 노선 그 자체)에서는 그 노선이 곧
+    // 여객열차가 다니는 선로라 표시 의미가 없으므로 아예 계산하지 않는다.
     // 지역 필터를 여객열차 표시에도 똑같이 적용한다. (동명이역 자체는 이제 데이터에서
     // "판교(서천)"처럼 구분 표기해 이름이 겹치지 않으므로, 여기서는 지역만 확인하면 된다.)
     const currentStRegions = getStationRegions(currentLine, stIdx);
-    const passengerEntries = (PASSENGER_STATION_ENTRIES[st] || []).filter((p) => {
-      if (p.lineId === currentLine.id) return true;
-      const otherLine = ALL_LINES.find((x) => x.id === p.lineId);
-      const otherRegions = getStationRegions(otherLine, p.stationIdx);
-      if (currentStRegions.length > 0 && otherRegions.length > 0 && !currentStRegions.some((r) => otherRegions.includes(r))) {
-        return false;
-      }
-      return true;
-    });
+    const passengerEntries = currentLine.kind === 'physical'
+      ? []
+      : (PASSENGER_STATION_ENTRIES[st] || []).filter((p) => {
+          if (p.lineId === currentLine.id) return true;
+          const otherLine = ALL_LINES.find((x) => x.id === p.lineId);
+          const otherRegions = getStationRegions(otherLine, p.stationIdx);
+          if (currentStRegions.length > 0 && otherRegions.length > 0 && !currentStRegions.some((r) => otherRegions.includes(r))) {
+            return false;
+          }
+          return true;
+        });
     const hasPassenger = passengerEntries.length > 0;
     const passengerLines = hasPassenger
       ? Array.from(new Set(passengerEntries.map((p) => p.lineName))).sort()

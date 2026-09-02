@@ -229,9 +229,11 @@ export default function App() {
           <span className="flex items-center gap-1">
             <span className="inline-block w-4 h-4 rounded-full border-2 border-neutral-400" /> 전철 환승역
           </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[#9A3412]" /> 여객열차(KTX·SRT·무궁화 등) 접근 가능
-          </span>
+          {selectedLine.kind !== "physical" && (
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-2.5 h-2.5 rotate-45 bg-[#9A3412]" /> 여객열차(KTX·SRT·무궁화 등) 접근 가능
+            </span>
+          )}
           {isMixedColor && (
             <span className="text-neutral-400">
               · 역 색은 그 역을 지나는 도시철도 운행계통 색을 따르고, 운행계통이 없는 구간은 검정 네모예요.
