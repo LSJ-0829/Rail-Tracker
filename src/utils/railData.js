@@ -31,11 +31,20 @@ const PASSENGER_PHYSICAL_LINE_IDS = new Set([
 const PASSENGER_STATION_ENTRIES = {};
 ALL_LINES.forEach((l) => {
   if (PASSENGER_PHYSICAL_LINE_IDS.has(l.id)) {
-    (l.stations || []).forEach((st, idx) => {
+    // passengerStops: 도시철도와 선로를 공유하는 구간(1호선 경부·장항선, 경의중앙선, 부산 동해선
+    // 광역전철 등)에서는 물리 노선의 전체 역 목록(stations)에 통근형 전용 역까지 다 들어있어서,
+    // 그 목록을 그대로 쓰면 무궁화호 등이 서지 않는 역까지 "여객열차 정차"로 잘못 표시된다.
+    // 그래서 이런 노선은 실제 여객열차가 정차하는 역만 골라낸 passengerStops를 대신 쓴다
+    // (다른 순수 시외/고속 노선은 겹치는 도시철도가 없어 stations 전체가 곧 정차역이라 그대로 사용).
+    // stationIdx는 반드시 stations(전체 목록) 기준 위치를 저장해야 한다 — getStationRegions가
+    // regionBoundaries를 stations 배열 인덱스로 비교하므로, passengerStops(부분집합)에서의
+    // 위치를 넣으면 지역 판정이 틀어진다.
+    const fullStations = l.stations || [];
+    (l.passengerStops || fullStations).forEach((st) => {
       if (!PASSENGER_STATION_ENTRIES[st]) {
         PASSENGER_STATION_ENTRIES[st] = [];
       }
-      PASSENGER_STATION_ENTRIES[st].push({ lineId: l.id, lineName: l.name, stationIdx: idx });
+      PASSENGER_STATION_ENTRIES[st].push({ lineId: l.id, lineName: l.name, stationIdx: fullStations.indexOf(st) });
     });
   }
 });
