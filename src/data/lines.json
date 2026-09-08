@@ -350,6 +350,23 @@
     ]
   },
   {
+    "id": "gc-gwangwoondae",
+    "name": "경춘선 (광운대 연장)",
+    "color": "#0C8E72",
+    "networkId": "capital",
+    "kind": "urban",
+    "stations": [
+      "광운대", "상봉", "망우", "별내", "퇴계원", "사릉", "금곡", "평내호평",
+      "천마산", "마석", "대성리", "청평", "상천", "가평", "굴봉산", "백양리", "강촌", "김유정",
+      "남춘천", "춘천"
+    ],
+    "physicalSegments": [
+      { "physicalLineId": "manguseon-full", "upTo": "망우" },
+      { "physicalLineId": "gyeongchun-full", "upTo": "춘천" }
+    ],
+    "note": "평일 한정 1일 2회, 상봉~광운대 구간을 망우선으로 연장 운행하는 경춘선 전동차"
+  },
+  {
     "id": "sh",
     "name": "서해선 광역전철",
     "color": "#81A914",
@@ -1216,6 +1233,16 @@
       "상천", "가평", "굴봉산", "백양리", "강촌", "김유정", "남춘천", "춘천"
     ],
     "regions": ["capital"]
+  },
+  {
+    "id": "manguseon-full",
+    "name": "망우선",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["망우", "상봉", "광운대"],
+    "regions": ["capital"],
+    "note": "망우~광운대, 4.9km. 1963년 개통한 원래 화물 전용선(경춘선·중앙선과는 별개 트랙). 중간역 '이문'(km 2.3)은 2004년 폐역. 2013-11-04부터 평일 한정 수도권 전철 경춘선 일부 열차(1일 2회)가 이 노선을 통해 광운대역까지 연장 운행"
   },
   {
     "id": "seohae-full",
