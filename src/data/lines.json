@@ -1370,6 +1370,17 @@
     "note": "만종~강릉. 코레일 철도노선도(2026.1.1) 대조로 확인 - 경강선(gyeonggang-pangyo-full, 판교~여주)과는 물리적으로 이어지지 않는 별개 노선이며, 정식 노선명도 \"경강선\"이 아니라 \"강릉선\"(KTX-이음)"
   },
   {
+    "id": "donghae-bukbu-full",
+    "name": "동해북부선 (강릉~제진)",
+    "color": null,
+    "networkId": "physical",
+    "kind": "physical",
+    "stations": ["강릉", "주문진", "양양", "속초", "간성", "화진포", "제진"],
+    "regions": ["capital"],
+    "passengerAccessible": false,
+    "note": "111.7km, 2022-01 착공, 2026-09 기준 공사 중(개통 목표 2028년 이후, 정확한 시기 미확정). 완공 후 동해선에 편입 예정. 아직 개통 전이라 passengerAccessible: false로 \"노선으로 찾기\"·완주 통계에서 제외. 개통되면 이 플래그를 지우고 note도 갱신할 것. 남강릉신호장·38선신호장은 여객 미취급 신호장이라 stations에서 제외"
+  },
+  {
     "id": "vtrain",
     "name": "백두대간협곡열차 (V-train)",
     "color": "#1B5E20",
