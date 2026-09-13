@@ -113,25 +113,70 @@ export function getPhysicalLineList() {
   return [...physical, ...standaloneUrban];
 }
 
-export function deriveServiceCoverage(line, trips) {
-  const coverage = new Set();
+// 배열 첫 역과 마지막 역 이름이 같으면 순환선으로 본다(서울 2호선처럼 순환 구간을 표현하려고
+// 첫 역을 배열 끝에 한 번 더 등록해둔 경우).
+function isCircularStations(stations) {
+  return stations.length > 1 && stations[0] === stations[stations.length - 1];
+}
+
+function edgeKey(a, b) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
+
+// from~to 트립 하나가 실제로 지나는 구간(인접 역 인덱스 쌍, i는 stations[i]↔stations[i+1] 구간을 뜻함)을
+// 반환한다. 순환선은 배열 인덱스로 바로 이어지는 정방향 구간과, 배열 끝~처음 경계(중복 등록된 역)를
+// 넘어가는 반대편 구간 중 하나가 진짜 탄 경로인지 from/to 이름만으로는 구분할 수 없다. 방향을 사용자가
+// 따로 표시하지 않으므로, 실제로 더 짧은 쪽(예: 을지로입구→홍대입구는 강남 방면이 아니라 시청 방면)을
+// 탄 것으로 가정한다. (예전에는 이 계산이 아예 없어서 순환선에서 항상 정방향=먼 쪽 구간으로 등록됐음)
+function getTripEdgeIndices(stations, from, to) {
+  const i1 = stations.indexOf(from);
+  const i2 = stations.indexOf(to);
+  if (i1 === -1 || i2 === -1 || i1 === i2) return [];
+
+  const lo = Math.min(i1, i2);
+  const hi = Math.max(i1, i2);
+  const forward = [];
+  for (let i = lo; i < hi; i++) forward.push(i);
+
+  if (!isCircularStations(stations)) return forward;
+
+  const lastIdx = stations.length - 1;
+  const wrap = [];
+  for (let i = hi; i < lastIdx; i++) wrap.push(i);
+  for (let i = 0; i < lo; i++) wrap.push(i);
+
+  return wrap.length < forward.length ? wrap : forward;
+}
+
+// 노선(서비스/물리 노선 모두)에서 실제로 탄 구간(인접 역 이름 쌍)의 집합을 구한다. 트립 하나하나를
+// 독립적으로 구간화하고 그 이름 쌍만 모으므로("A~B 탔음", "C~D 탔음"인데 B와 C가 우연히 인접역이라고
+// B~C 구간까지 탄 것으로 잘못 잡히는 일이 없다), 여러 물리 노선에 걸친 복합 서비스도 각 물리 노선
+// 자체의 역 순서(순환 여부 포함) 기준으로 올바르게 해석된다.
+export function deriveRiddenEdges(line, trips) {
+  const edges = new Set();
   const physicalIds = getUnderlyingPhysicalIds(line);
   physicalIds.forEach((pid) => {
+    const stations = getPhysicalStations(ALL_LINES.find((l) => l.id === pid));
     const list = trips[pid] || [];
     list.forEach((t) => {
-      const stations = getPhysicalStations(ALL_LINES.find((l) => l.id === pid));
-      const i1 = stations.indexOf(t.from);
-      const i2 = stations.indexOf(t.to);
-      if (i1 !== -1 && i2 !== -1) {
-        const start = Math.min(i1, i2);
-        const end = Math.max(i1, i2);
-        for (let i = start; i <= end; i++) {
-          coverage.add(stations[i]);
-        }
-      }
+      getTripEdgeIndices(stations, t.from, t.to).forEach((i) => {
+        edges.add(edgeKey(stations[i], stations[i + 1]));
+      });
     });
   });
-  return coverage;
+  return edges;
+}
+
+export function isEdgeRidden(riddenEdges, stationA, stationB) {
+  return riddenEdges.has(edgeKey(stationA, stationB));
+}
+
+// 트립 하나가 지나는 역 수(표시용, "N개 역 구간"). 순환선은 getTripEdgeIndices와 동일한 기준으로
+// 더 짧은 쪽 경로를 기준으로 센다.
+export function getTripStationCount(stations, from, to) {
+  if (stations.indexOf(from) === -1 || stations.indexOf(to) === -1) return 0;
+  const edges = getTripEdgeIndices(stations, from, to);
+  return edges.length + 1;
 }
 
 export function computeLineStats(line, visitedSet, trips) {
@@ -139,10 +184,10 @@ export function computeLineStats(line, visitedSet, trips) {
   const totalStations = stations.length;
   const visitedStations = stations.filter((s) => visitedSet.has(s)).length;
   const totalSegments = Math.max(0, totalStations - 1);
-  const coverage = deriveServiceCoverage(line, trips);
+  const riddenEdges = deriveRiddenEdges(line, trips);
   let riddenSegments = 0;
   for (let i = 0; i < stations.length - 1; i++) {
-    if (coverage.has(stations[i]) && coverage.has(stations[i + 1])) {
+    if (isEdgeRidden(riddenEdges, stations[i], stations[i + 1])) {
       riddenSegments++;
     }
   }
@@ -165,23 +210,15 @@ export function computePhysicalLineStats(trips) {
   });
 }
 
-// 알려진 한계: 서울 2호선(seoul2-full/s2)처럼 순환선이라 배열 처음·끝에 같은 역 이름(시청)이
-// 두 번 나오는 노선에서는 indexOf가 항상 첫 번째(0번) 시청만 찾는다. 그래서 "충정로→시청"처럼
-// 폐색 구간 한 정거장만 탄 기록도 start=0으로 계산되어 순환 구간 전체를 탄 것처럼 잡힐 수 있다.
-// 실사용 빈도가 낮아 당장 고치진 않았지만, 순환선을 새로 추가할 때 같은 문제가 재현될 수 있다.
+// 서울 2호선(seoul2-full)처럼 순환선이라 배열 처음·끝에 같은 역 이름(시청)이 두 번 나오는 노선도
+// getTripEdgeIndices가 정방향/반대편(배열 경계를 넘는 쪽) 중 더 짧은 구간을 골라주므로 정확히 처리된다.
 export function derivedPhysicalSegments(stations, tripList) {
   const covered = new Set();
   if (!tripList || !Array.isArray(tripList)) return covered;
   tripList.forEach((t) => {
-    const i1 = stations.indexOf(t.from);
-    const i2 = stations.indexOf(t.to);
-    if (i1 !== -1 && i2 !== -1) {
-      const start = Math.min(i1, i2);
-      const end = Math.max(i1, i2);
-      for (let i = start; i < end; i++) {
-        covered.add(`${i}-${i+1}`);
-      }
-    }
+    getTripEdgeIndices(stations, t.from, t.to).forEach((i) => {
+      covered.add(`${i}-${i + 1}`);
+    });
   });
   return covered;
 }

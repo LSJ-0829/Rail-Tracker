@@ -1,6 +1,6 @@
-import { displayStationName } from "../utils/railData";
+import { displayStationName, isEdgeRidden } from "../utils/railData";
 
-export default function LineDiagram({ line, visited, covered, onToggleStation, stationStyles, transferInfo }) {
+export default function LineDiagram({ line, visited, riddenEdges, onToggleStation, stationStyles, transferInfo }) {
   const stations = line.stations || [];
   const styles = stationStyles || stations.map(() => ({ color: "#111827", colored: false }));
   const stepX = 92;
@@ -29,7 +29,7 @@ export default function LineDiagram({ line, visited, covered, onToggleStation, s
           if (i === stations.length - 1) return null;
           const x1 = 60 + i * stepX;
           const x2 = 60 + (i + 1) * stepX;
-          const isRidden = covered.has(st) && covered.has(stations[i + 1]);
+          const isRidden = isEdgeRidden(riddenEdges, st, stations[i + 1]);
           return (
             <line
               key={`${line.id}-seg-${i}`}

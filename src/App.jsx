@@ -5,7 +5,7 @@ import {
   SERVICE_NETWORKS,
   computeLineStats,
   computePhysicalLineStats,
-  deriveServiceCoverage,
+  deriveRiddenEdges,
   derivedPhysicalSegments,
   computePhysicalRegistry,
   getPhysicalStations,
@@ -133,7 +133,7 @@ export default function App() {
       _pidStations: getPhysicalStations(pidLine),
     }));
   });
-  const covered = deriveServiceCoverage(selectedLine, trips);
+  const riddenEdges = deriveRiddenEdges(selectedLine, trips);
   const sharingLines = ALL_LINES.filter((l) => {
     if (l.id === selectedLine.id) return false;
     const otherIds = getUnderlyingPhysicalIds(l);
@@ -211,7 +211,7 @@ export default function App() {
         <LineDiagram
           line={selectedLine}
           visited={visited}
-          covered={covered}
+          riddenEdges={riddenEdges}
           onToggleStation={toggleStation}
           stationStyles={stationStyles}
           transferInfo={transferInfo}
