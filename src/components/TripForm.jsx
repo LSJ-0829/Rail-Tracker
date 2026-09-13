@@ -13,16 +13,20 @@ const VIA_SUGGESTIONS = [
  * 물리 선로 전체 역을 옵션으로 준다)
  */
 export default function TripForm({ stations, onAdd }) {
+  // 순환선(서울 2호선 등)은 배열 끝에 첫 역이 그대로 중복 등록돼 있다(예: 시청). 두 자리 모두
+  // 같은 역 이름이라 드롭다운에서 골라도 구분할 수 없으므로, 목록에는 한 번만 보여준다.
+  const pickerStations = Array.from(new Set(stations));
   const [from, setFrom] = useState(stations[0]);
-  const [to, setTo] = useState(stations[stations.length - 1]);
+  const [to, setTo] = useState(pickerStations[pickerStations.length - 1]);
   const [date, setDate] = useState(todayStr());
   const [via, setVia] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const unique = Array.from(new Set(stations));
     setFrom(stations[0]);
-    setTo(stations[stations.length - 1]);
+    setTo(unique[unique.length - 1]);
     setError("");
   }, [stations]);
 
@@ -41,7 +45,7 @@ export default function TripForm({ stations, onAdd }) {
       <div className="flex flex-col">
         <label className="text-[11px] text-neutral-500 mb-1">출발역</label>
         <select value={from} onChange={(e) => setFrom(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
-          {stations.map((s) => (
+          {pickerStations.map((s) => (
             <option key={s} value={s}>
               {displayStationName(s)}
             </option>
@@ -51,7 +55,7 @@ export default function TripForm({ stations, onAdd }) {
       <div className="flex flex-col">
         <label className="text-[11px] text-neutral-500 mb-1">도착역</label>
         <select value={to} onChange={(e) => setTo(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
-          {stations.map((s) => (
+          {pickerStations.map((s) => (
             <option key={s} value={s}>
               {displayStationName(s)}
             </option>
