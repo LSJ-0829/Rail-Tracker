@@ -15,10 +15,7 @@ function LineCard({ line, visited, trips, onSelectLine }) {
       />
       <span className="flex-1 min-w-0">
         <div className="text-sm font-medium truncate">{line.name}</div>
-        <div className="text-[11px] text-neutral-400 truncate">
-          {line.note ? line.note + " · " : ""}
-          {line.stations.length}개 역
-        </div>
+        <div className="text-[11px] text-neutral-400 truncate">{line.stations.length}개 역</div>
       </span>
       <div className="text-right shrink-0">
         <div className="text-sm font-bold">{pct}%</div>

@@ -225,7 +225,7 @@
   },
   {
     "id": "s8",
-    "name": "8호선 별내선",
+    "name": "8호선",
     "color": "#EA545D",
     "networkId": "capital",
     "kind": "urban",
@@ -351,7 +351,7 @@
   },
   {
     "id": "gc-gwangwoondae",
-    "name": "경춘선 (광운대 연장)",
+    "name": "경춘선 광운대행",
     "color": "#0C8E72",
     "networkId": "capital",
     "kind": "urban",
@@ -368,7 +368,7 @@
   },
   {
     "id": "sh",
-    "name": "서해선 광역전철",
+    "name": "서해선",
     "color": "#81A914",
     "networkId": "capital",
     "kind": "urban",
@@ -559,7 +559,7 @@
   },
   {
     "id": "donghae-metro",
-    "name": "동해선 광역전철",
+    "name": "동해선",
     "color": "#003DA5",
     "networkId": "busan",
     "kind": "urban",
@@ -612,7 +612,7 @@
   },
   {
     "id": "dg",
-    "name": "대경선 (대구권 광역철도)",
+    "name": "대경선",
     "color": "#C10230",
     "networkId": "daegu",
     "kind": "urban",
@@ -833,7 +833,7 @@
   },
   {
     "id": "donghae-full",
-    "name": "동해선",
+    "name": "코레일 동해선",
     "color": null,
     "networkId": "physical",
     "kind": "physical",
