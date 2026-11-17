@@ -23,7 +23,7 @@ export default function LineDiagram({ line, visited, riddenEdges, onToggleStatio
   };
 
   return (
-    <div className="overflow-x-auto border border-neutral-200 rounded-xl bg-white">
+    <div className="overflow-x-auto rounded-[22px] bg-white [scrollbar-width:thin]">
       <svg width={width} height={height} style={{ minWidth: width }}>
         {stations.map((st, i) => {
           if (i === stations.length - 1) return null;

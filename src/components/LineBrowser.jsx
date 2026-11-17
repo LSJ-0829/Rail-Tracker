@@ -1,26 +1,31 @@
 import { useState, useMemo } from "react";
 import { computeLineStats, displayColor, hasOfficialColor } from "../utils/railData";
+import { Chevron } from "./Lobby";
 
-function LineCard({ line, visited, trips, onSelectLine }) {
+export function LineSwatch({ line, size = 12 }) {
+  return (
+    <span
+      className={`inline-block shrink-0 ${hasOfficialColor(line) ? "rounded-full" : "rounded-[3px]"}`}
+      style={{ width: size, height: size, backgroundColor: displayColor(line) }}
+    />
+  );
+}
+
+function LineRow({ line, visited, trips, onSelectLine }) {
   const st = computeLineStats(line, visited, trips);
   const pct = st.totalSegments ? Math.round((st.riddenSegments / st.totalSegments) * 100) : 0;
   return (
     <button
       onClick={() => onSelectLine(line.id)}
-      className="w-full text-left bg-white border border-neutral-200 rounded-xl px-4 py-3 hover:border-neutral-400 transition flex items-center gap-3"
+      className="w-full text-left px-4 sm:px-5 py-3.5 flex items-center gap-3.5 transition hover:bg-[#fafafc] active:bg-[#f0f0f3]"
     >
-      <span
-        className={`inline-block w-3 h-3 shrink-0 ${hasOfficialColor(line) ? "rounded-full" : "rounded-[2px]"}`}
-        style={{ backgroundColor: displayColor(line) }}
-      />
+      <LineSwatch line={line} />
       <span className="flex-1 min-w-0">
-        <div className="text-sm font-medium truncate">{line.name}</div>
-        <div className="text-[11px] text-neutral-400 truncate">{line.stations.length}개 역</div>
+        <span className="block text-[17px] text-ink truncate">{line.name}</span>
+        <span className="block text-[13px] text-sub truncate">{line.stations.length}개 역</span>
       </span>
-      <div className="text-right shrink-0">
-        <div className="text-sm font-bold">{pct}%</div>
-        <div className="text-[10px] text-neutral-400">완주</div>
-      </div>
+      <span className={`text-[17px] tabular-nums shrink-0 ${pct > 0 ? "text-ink font-medium" : "text-sub"}`}>{pct}%</span>
+      <Chevron className="text-[#c7c7cc] ml-0.5" />
     </button>
   );
 }
@@ -29,64 +34,66 @@ function LineCard({ line, visited, trips, onSelectLine }) {
  * 물리노선 모드: flatLines (그룹 없음)
  * 서비스 모드: groups ([{id,name,lines}]) - 지역별로 묶어서 보여줌
  */
-export default function LineBrowser({ title, subtitle, flatLines, groups, visited, trips, onSelectLine, onBack }) {
+export default function LineBrowser({ title, subtitle, flatLines, groups, visited, trips, onSelectLine }) {
   const [query, setQuery] = useState("");
+  const q = query.trim();
+  const match = (l) => l.name.includes(q) || l.stations.some((s) => s.includes(q));
 
   const filteredFlat = useMemo(() => {
     if (!flatLines) return null;
-    if (!query.trim()) return flatLines;
-    return flatLines.filter((l) => l.name.includes(query.trim()) || l.stations.some((s) => s.includes(query.trim())));
-  }, [flatLines, query]);
+    return q ? flatLines.filter(match) : flatLines;
+  }, [flatLines, q]);
 
   const filteredGroups = useMemo(() => {
     if (!groups) return null;
-    if (!query.trim()) return groups;
-    return groups
-      .map((g) => ({
-        ...g,
-        lines: g.lines.filter((l) => l.name.includes(query.trim()) || l.stations.some((s) => s.includes(query.trim()))),
-      }))
-      .filter((g) => g.lines.length > 0);
-  }, [groups, query]);
+    if (!q) return groups;
+    return groups.map((g) => ({ ...g, lines: g.lines.filter(match) })).filter((g) => g.lines.length > 0);
+  }, [groups, q]);
+
+  const empty = (filteredFlat && filteredFlat.length === 0) || (filteredGroups && filteredGroups.length === 0);
 
   return (
-    <div className="max-w-3xl mx-auto px-5 py-8">
-      <button onClick={onBack} className="text-xs text-neutral-400 hover:text-neutral-700 mb-4">
-        ← 로비로
-      </button>
-      <h1 className="text-lg font-bold mb-1">{title}</h1>
-      {subtitle && <p className="text-xs text-neutral-500 mb-4">{subtitle}</p>}
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="노선 이름 또는 역 이름으로 검색"
-        className="w-full text-sm border border-neutral-300 rounded-lg px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-neutral-400"
-      />
+    <main className="max-w-[720px] mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-16">
+      <h1 className="headline text-[34px] sm:text-[48px] leading-tight mb-2">{title}</h1>
+      {subtitle && <p className="text-[17px] text-sub leading-snug mb-7">{subtitle}</p>}
 
-      {filteredFlat && (
-        <div className="space-y-2">
+      <div className="relative mb-8">
+        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
+          <circle cx="11" cy="11" r="7" />
+          <path d="M20 20l-3.5-3.5" />
+        </svg>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="노선 이름 또는 역 이름"
+          className="field !bg-[#e8e8ed] focus:!bg-white pl-10"
+        />
+      </div>
+
+      {filteredFlat && filteredFlat.length > 0 && (
+        <div className="grouped">
           {filteredFlat.map((l) => (
-            <LineCard key={l.id} line={l} visited={visited} trips={trips} onSelectLine={onSelectLine} />
+            <LineRow key={l.id} line={l} visited={visited} trips={trips} onSelectLine={onSelectLine} />
           ))}
-          {filteredFlat.length === 0 && <p className="text-sm text-neutral-400 text-center py-8">일치하는 노선이 없어요.</p>}
         </div>
       )}
 
       {filteredGroups && (
-        <div className="space-y-6">
+        <div className="space-y-9">
           {filteredGroups.map((g) => (
-            <div key={g.id}>
-              <h3 className="text-xs font-semibold text-neutral-500 mb-2">{g.name}</h3>
-              <div className="space-y-2">
+            <section key={g.id}>
+              <h2 className="text-[22px] font-semibold tracking-tight text-ink mb-3 px-1">{g.name}</h2>
+              <div className="grouped">
                 {g.lines.map((l) => (
-                  <LineCard key={l.id} line={l} visited={visited} trips={trips} onSelectLine={onSelectLine} />
+                  <LineRow key={l.id} line={l} visited={visited} trips={trips} onSelectLine={onSelectLine} />
                 ))}
               </div>
-            </div>
+            </section>
           ))}
-          {filteredGroups.length === 0 && <p className="text-sm text-neutral-400 text-center py-8">일치하는 노선이 없어요.</p>}
         </div>
       )}
-    </div>
+
+      {empty && <p className="text-[17px] text-sub text-center py-16">일치하는 노선이 없어요.</p>}
+    </main>
   );
 }

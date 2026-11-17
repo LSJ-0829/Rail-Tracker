@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  @apply bg-canvas text-ink font-sans antialiased;
+  font-feature-settings: "kern";
+  word-break: keep-all;
+}
+
+@layer components {
+  /* 화면 상단의 큰 제목 */
+  .headline {
+    @apply font-semibold tracking-tightest text-ink;
+  }
+  /* 흰색 둥근 카드 */
+  .card {
+    @apply bg-white rounded-[22px];
+  }
+  /* 회색 채움 입력칸 */
+  .field {
+    @apply w-full bg-canvas rounded-xl px-3.5 py-2.5 text-[15px] text-ink placeholder:text-[#86868b]
+      border border-transparent outline-none transition focus:bg-white focus:border-accent focus:ring-4 focus:ring-accent/15;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-accent text-white text-[15px] font-medium
+      px-5 py-2.5 transition hover:bg-[#0077ed] active:scale-[0.98] disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-accent text-accent text-[15px] font-medium
+      px-5 py-2.5 transition hover:bg-accent hover:text-white active:scale-[0.98];
+  }
+  /* iOS 설정 앱처럼 묶인 목록 */
+  .grouped {
+    @apply bg-white rounded-[18px] overflow-hidden divide-y divide-[#e8e8ed];
+  }
 }

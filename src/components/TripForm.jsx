@@ -7,6 +7,15 @@ const VIA_SUGGESTIONS = [
   "새마을호", "무궁화호", "누리로", "전철/지하철", "기타",
 ];
 
+function Field({ label, children, className = "" }) {
+  return (
+    <label className={`flex flex-col ${className}`}>
+      <span className="text-[12px] font-medium text-sub mb-1.5 px-0.5">{label}</span>
+      {children}
+    </label>
+  );
+}
+
 /**
  * stations: 이 폼에서 선택 가능한 역 목록 (물리 선로 전체 기준 - 서비스가 일부만
  * 보여주더라도, 실제로 탄 구간은 그 서비스가 보여주는 범위를 넘어설 수 있으므로
@@ -22,6 +31,7 @@ export default function TripForm({ stations, onAdd }) {
   const [via, setVia] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const unique = Array.from(new Set(stations));
@@ -29,6 +39,12 @@ export default function TripForm({ stations, onAdd }) {
     setTo(unique[unique.length - 1]);
     setError("");
   }, [stations]);
+
+  useEffect(() => {
+    if (!saved) return undefined;
+    const t = setTimeout(() => setSaved(false), 1800);
+    return () => clearTimeout(t);
+  }, [saved]);
 
   const submit = () => {
     if (from === to) {
@@ -38,64 +54,79 @@ export default function TripForm({ stations, onAdd }) {
     setError("");
     onAdd(from, to, date, note, via);
     setNote("");
+    setSaved(true);
   };
 
+  const swap = () => {
+    setFrom(to);
+    setTo(from);
+  };
+
+  const stationOptions = pickerStations.map((s) => (
+    <option key={s} value={s}>
+      {displayStationName(s)}
+    </option>
+  ));
+
   return (
-    <div className="bg-white border border-neutral-200 rounded-xl p-3 flex flex-wrap gap-2 items-end">
-      <div className="flex flex-col">
-        <label className="text-[11px] text-neutral-500 mb-1">출발역</label>
-        <select value={from} onChange={(e) => setFrom(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
-          {pickerStations.map((s) => (
-            <option key={s} value={s}>
-              {displayStationName(s)}
-            </option>
-          ))}
-        </select>
+    <div className="card p-5 sm:p-6">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 mb-4">
+        <Field label="출발역">
+          <select value={from} onChange={(e) => setFrom(e.target.value)} className="field appearance-none">
+            {stationOptions}
+          </select>
+        </Field>
+        <button
+          type="button"
+          onClick={swap}
+          aria-label="출발역과 도착역 바꾸기"
+          className="mb-1 w-9 h-9 rounded-full bg-canvas text-sub hover:text-ink hover:bg-[#e8e8ed] transition flex items-center justify-center"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M7 4L3 8l4 4" />
+            <path d="M3 8h14" />
+            <path d="M17 20l4-4-4-4" />
+            <path d="M21 16H7" />
+          </svg>
+        </button>
+        <Field label="도착역">
+          <select value={to} onChange={(e) => setTo(e.target.value)} className="field appearance-none">
+            {stationOptions}
+          </select>
+        </Field>
       </div>
-      <div className="flex flex-col">
-        <label className="text-[11px] text-neutral-500 mb-1">도착역</label>
-        <select value={to} onChange={(e) => setTo(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 max-w-[9rem]">
-          {pickerStations.map((s) => (
-            <option key={s} value={s}>
-              {displayStationName(s)}
-            </option>
-          ))}
-        </select>
+
+      <div className="grid sm:grid-cols-3 gap-3 mb-5">
+        <Field label="날짜">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="field" />
+        </Field>
+        <Field label="이용 열차 (선택)">
+          <input
+            type="text"
+            list="via-suggestions"
+            value={via}
+            onChange={(e) => setVia(e.target.value)}
+            placeholder="예: 무궁화호"
+            className="field"
+          />
+          <datalist id="via-suggestions">
+            {VIA_SUGGESTIONS.map((v) => (
+              <option key={v} value={v} />
+            ))}
+          </datalist>
+        </Field>
+        <Field label="메모 (선택)">
+          <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 친구랑 여행" className="field" />
+        </Field>
       </div>
-      <div className="flex flex-col">
-        <label className="text-[11px] text-neutral-500 mb-1">날짜</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5" />
+
+      <div className="flex items-center gap-3">
+        <button onClick={submit} className="btn-primary">
+          기록 추가
+        </button>
+        {error && <span className="text-[13px] text-[#e30000]">{error}</span>}
+        {!error && saved && <span className="text-[13px] text-[#008009]">추가했어요.</span>}
       </div>
-      <div className="flex flex-col">
-        <label className="text-[11px] text-neutral-500 mb-1">이용 열차 (선택)</label>
-        <input
-          type="text"
-          list="via-suggestions"
-          value={via}
-          onChange={(e) => setVia(e.target.value)}
-          placeholder="예: 무궁화호"
-          className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 w-32"
-        />
-        <datalist id="via-suggestions">
-          {VIA_SUGGESTIONS.map((v) => (
-            <option key={v} value={v} />
-          ))}
-        </datalist>
-      </div>
-      <div className="flex flex-col flex-1 min-w-[8rem]">
-        <label className="text-[11px] text-neutral-500 mb-1">메모 (선택)</label>
-        <input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="예: 친구랑 여행"
-          className="text-sm border border-neutral-300 rounded-lg px-2 py-1.5 w-full"
-        />
-      </div>
-      <button onClick={submit} className="text-sm font-medium bg-neutral-900 text-white rounded-lg px-4 py-1.5 hover:bg-neutral-700">
-        기록 추가
-      </button>
-      {error && <span className="text-xs text-red-500 w-full">{error}</span>}
     </div>
   );
 }
