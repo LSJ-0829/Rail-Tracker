@@ -61,6 +61,8 @@ const DISPLAY_NAME_OVERRIDES = {
   '양원(봉화)': '양원',
   '가좌(인천)': '가좌',
   '양평(영등포)': '양평',
+  '금호(영천)': '금호',
+  '남포(보령)': '남포',
 };
 
 export function displayStationName(name) {

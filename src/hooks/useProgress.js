@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { migrateProgress, CURRENT_DATA_VERSION } from "../utils/migrations";
 
 const STORAGE_KEY = "rail-progress-v2";
 
@@ -38,6 +39,13 @@ export function useProgress() {
       let parsed = null;
       if (raw) {
         parsed = JSON.parse(raw);
+        // 노선 데이터가 바뀌어 역이 빠지거나 이름이 바뀐 경우 저장된 기록을 한 번만 옮긴다
+        // (원본은 migrateProgress가 별도 키에 백업)
+        const migrated = migrateProgress(parsed, localStorage, STORAGE_KEY);
+        if (migrated) {
+          parsed = migrated;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
         setState({ visited: new Set(parsed.visited || []), trips: parsed.trips || {} });
       }
       // 처음 쓰는 브라우저면 오늘 날짜를 "기록 시작일"로 저장
@@ -50,6 +58,7 @@ export function useProgress() {
             visited: (parsed && parsed.visited) || [],
             trips: (parsed && parsed.trips) || {},
             startDate: start,
+            dataVersion: CURRENT_DATA_VERSION,
           })
         );
       }
@@ -65,7 +74,12 @@ export function useProgress() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ visited: Array.from(nextVisited), trips: nextTrips, startDate: nextStartDate })
+        JSON.stringify({
+          visited: Array.from(nextVisited),
+          trips: nextTrips,
+          startDate: nextStartDate,
+          dataVersion: CURRENT_DATA_VERSION,
+        })
       );
     } catch (e) {
       console.error("저장 실패", e);
