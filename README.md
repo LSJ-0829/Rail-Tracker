@@ -24,6 +24,16 @@
    서비스 목록에서 검색해서 들어갑니다. KTX/무궁화호 등 일반 여객열차는 이 목록에 포함되지
    않습니다(물리 노선으로만 기록).
 3. **📊 완주 현황** — 전국 물리 노선 기준으로 전체 완주율(%)과 노선별 완주율을 확인합니다.
+4. **🗺️ 지도** — 탄 구간을 전국 지도에 노선 색으로 칠해 한눈에 봅니다(안 탄 노선은 회색).
+   역과 역을 직선으로 이은 그림이라 실제 선로 모양과는 다릅니다. 공식 노선색이 없는 노선의 탄
+   구간은 지도에서만 자홍색(#e3006d)으로 칠합니다. 선을 누르면 노선 이름과 완주 구간이 나오고
+   그 노선 화면으로 갈 수 있습니다. 바탕 지도는 OpenStreetMap 타일이라 온라인일 때만 보입니다.
+5. **✈️ 해외** — 해외에서 탄 구간을 나라 단위로 묶어 기록합니다. 노선·역 이름은 자유 입력이고,
+   **국내 전체 완주율·노선별 완주율·역 방문 집계에는 포함되지 않습니다.** 국내 기록과 다른
+   localStorage 키(`rail-abroad-v2`)에 따로 저장되어 국내 "전체 기록 초기화"나 국내 데이터
+   마이그레이션의 영향을 받지 않습니다. 같은 이름의 나라는 하나로만 만들어집니다(공백·대소문자 무시).
+   예전 여행 단위 기록(`rail-abroad-v1`)이 있으면 처음 열 때 나라별로 합쳐 옮기고, 원래 여행 이름은
+   각 구간에 남깁니다(v1 원본은 지우지 않음).
 
 ## 폴더 구조
 
@@ -32,8 +42,10 @@ src/
   data/
     networks.json   # 지역/카테고리 목록 (수도권/부산/대구/광주/대전/관광열차/전국 물리 노선)
     lines.json      # 노선별 역 순서, 색상, kind(urban|physical), physicalLineId
+    stationCoords.json # 지도용 역 좌표 { 물리노선 id: { 역 이름: [위도, 경도] } } (자동 생성, 아래 참고)
   hooks/
     useProgress.js  # 방문 역 / 물리 노선별 구간 기록을 localStorage에 저장·조회
+    useAbroad.js    # 해외 기록 (나라 단위, 완주율과 무관, 별도 키에 저장)
   components/
     Lobby.jsx        # 첫 화면 (물리노선/서비스/완주현황 선택)
     LineBrowser.jsx  # 물리노선·서비스 검색 및 목록
@@ -41,6 +53,8 @@ src/
     LineDiagram.jsx  # 노선 다이어그램 (SVG)
     TripForm.jsx     # 출발/도착/날짜/이용열차 기록 입력 폼
     TripList.jsx     # 기록된 구간 목록
+    RideMap.jsx      # 지도 화면 (Leaflet + OpenStreetMap 타일)
+    AbroadPage.jsx   # 해외 나라 목록·상세
   utils/
     railData.js      # lines.json/networks.json을 읽어 통계·물리노선 레지스트리 계산
   App.jsx
@@ -169,6 +183,32 @@ npm run build
   이렇게 짝을 맞춰야 "물리 노선으로 찾기"와 "서비스로 찾기"(지역별 목록) 양쪽 모두에서
   노출됩니다. `category: "tourist"`만 있고 짝이 되는 서비스 항목이 없으면 "서비스로 찾기"
   목록에서 빠지니 새 지자체 관광열차를 추가할 때는 항상 이 쌍을 함께 만들어 주세요.
+
+## 지도용 역 좌표 (`src/data/stationCoords.json`)
+
+`scripts/build_station_coords.py`가 OpenStreetMap(ODbL) 역 데이터에서 만든 파일입니다.
+정부 공공데이터포털 표준데이터는 로그인 없이 내려받을 수 없어 OSM을 출처로 썼습니다.
+
+- 1순위 후보는 `railway=station/halt` 등 역 노드, 2순위는 신호장·yard·폐역·공사 중 역과
+  "OO역" 승강장입니다. 2순위는 이웃 역과 25km(고속선 80km) 이내일 때만 씁니다.
+- 동명이역(서울 용산/대구 용산 등)은 노선 안에서 이웃 역에 가장 가까운 후보를 고르고, 같은
+  노선의 다른 역들과 동떨어진 단일 후보는 버립니다.
+- 2026-11-20 생성 기준 지도 대상 1,433개 역 중 1,425개를 매칭했습니다. 좌표가 없는 역(경부선
+  서창·세천·신암, 동해선 북면, 서해선 남양, 오송선 서창신호장, 왕송호수 레일바이크 시작점·반환점)은
+  지도에서 건너뛰고 앞뒤 역을 바로 잇습니다. 건너뛴 사이 구간이 전부 탄 구간일 때만 탄 것으로 칠합니다.
+- 노선 데이터를 고친 뒤 다시 만들려면 Overpass에서 역(`osm.json`)과 2순위 후보(`tier2.json`)를
+  받아 `python3 scripts/build_station_coords.py osm.json tier2.json src/data/lines.json src/data/stationCoords.json`
+  을 실행하고, 출력의 MISSING·FAR 목록을 확인합니다. Overpass 쿼리(https://overpass-api.de/api/interpreter):
+
+  ```
+  # osm.json
+  [out:json][timeout:170];area["ISO3166-1"="KR"]->.a;(node["railway"~"station|halt"](area.a);
+  node["public_transport"="station"]["train"="yes"](area.a);node["station"~"subway|light_rail|monorail"](area.a););out tags center;
+  # tier2.json
+  [out:json][timeout:190];area["ISO3166-1"="KR"]->.a;(nwr["name"]["railway"~"^(yard|signal_box|stop|tram_stop|junction|halt|station|service_station)$"](area.a);
+  nwr["name"]["disused:railway"~"station|halt"](area.a);nwr["name"]["construction:railway"~"station|stop"](area.a);
+  nwr["name"]["railway:ref"](area.a);nwr["name"~"역$"]["public_transport"="platform"](area.a););out tags center;
+  ```
 
 ## 알려진 한계 / 남은 작업
 

@@ -3,6 +3,8 @@ import { lock } from "../utils/auth";
 const LINKS = [
   { view: "physical", label: "노선" },
   { view: "service", label: "운행계통" },
+  { view: "map", label: "지도" },
+  { view: "abroad", label: "해외" },
   { view: "progress", label: "완주 현황" },
 ];
 
@@ -13,14 +15,14 @@ const LINKS = [
 export default function NavBar({ current, onNavigate }) {
   return (
     <nav className="sticky top-0 z-30 bg-[rgba(251,251,253,0.8)] backdrop-blur-xl backdrop-saturate-150 border-b border-black/[0.06]">
-      <div className="max-w-[980px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
+      <div className="max-w-[980px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-3">
         <button
           onClick={() => onNavigate("lobby")}
           className="text-[15px] font-semibold tracking-tight text-ink/90 hover:text-ink shrink-0"
         >
           철도완주
         </button>
-        <div className="flex items-center gap-5 sm:gap-8 text-[12px] sm:text-[13px]">
+        <div className="flex items-center gap-3.5 sm:gap-8 text-[12px] sm:text-[13px]">
           {LINKS.map((l) => (
             <button
               key={l.view}

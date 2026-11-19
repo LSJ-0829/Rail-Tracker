@@ -17,6 +17,7 @@ import {
   hasOfficialColor,
 } from "./utils/railData";
 import { useProgress } from "./hooks/useProgress";
+import { useAbroad } from "./hooks/useAbroad";
 import NavBar from "./components/NavBar";
 import Lobby from "./components/Lobby";
 import LineBrowser, { LineSwatch } from "./components/LineBrowser";
@@ -24,13 +25,18 @@ import ProgressPage from "./components/ProgressPage";
 import LineDiagram from "./components/LineDiagram";
 import TripForm from "./components/TripForm";
 import TripList from "./components/TripList";
+import RideMap from "./components/RideMap";
+import AbroadPage from "./components/AbroadPage";
 
 export default function App() {
   const { visited, trips, startDate, loaded, toggleStation, addTrip, deleteTrip, resetAll } = useProgress();
-  const [view, setView] = useState("lobby"); // lobby | physical | service | progress | detail
+  const abroad = useAbroad();
+  const [view, setView] = useState("lobby"); // lobby | physical | service | map | abroad | progress | detail
   const [returnView, setReturnView] = useState("lobby");
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  // 상단 바를 누를 때마다 바뀌는 값. 해외 화면처럼 안에 상세 화면을 가진 페이지를 처음 상태(목록)로 되돌린다.
+  const [navKey, setNavKey] = useState(0);
 
   const physicalLineList = useMemo(() => getPhysicalLineList(), []);
 
@@ -64,6 +70,7 @@ export default function App() {
   const navigate = (next) => {
     setSelectedLineId(null);
     setConfirmReset(false);
+    setNavKey((k) => k + 1);
     setView(next);
   };
 
@@ -81,9 +88,13 @@ export default function App() {
 
   let page;
   if (view === "lobby") {
-    page = <Lobby overallStats={overallStats} startDate={startDate} onEnter={navigate} />;
+    page = <Lobby overallStats={overallStats} startDate={startDate} abroadCount={abroad.countries.length} onEnter={navigate} />;
   } else if (view === "progress") {
     page = <ProgressPage overallStats={overallStats} physicalStats={physicalStats} onSelectLine={selectLine} />;
+  } else if (view === "map") {
+    page = <RideMap trips={trips} onSelectLine={selectLine} />;
+  } else if (view === "abroad") {
+    page = <AbroadPage key={navKey} abroad={abroad} />;
   } else if (view === "physical") {
     page = (
       <LineBrowser
@@ -121,7 +132,9 @@ export default function App() {
         confirmReset={confirmReset}
         setConfirmReset={setConfirmReset}
         onBack={backFromDetail}
-        backLabel={returnView === "progress" ? "완주 현황" : returnView === "service" ? "운행계통" : "노선"}
+        backLabel={
+          returnView === "progress" ? "완주 현황" : returnView === "service" ? "운행계통" : returnView === "map" ? "지도" : "노선"
+        }
       />
     );
   }

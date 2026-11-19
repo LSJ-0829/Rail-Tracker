@@ -835,7 +835,7 @@
   },
   {
     "id": "donghae-full",
-    "name": "코레일 동해선",
+    "name": "동해선",
     "color": null,
     "networkId": "physical",
     "kind": "physical",

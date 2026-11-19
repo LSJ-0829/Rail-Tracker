@@ -39,3 +39,8 @@ body {
     @apply bg-white rounded-[18px] overflow-hidden divide-y divide-[#e8e8ed];
   }
 }
+
+/* 지도: 바탕 타일을 흑백으로 눌러 탄 구간(노선 색)이 잘 보이게 한다 */
+.rt-map-tile {
+  filter: grayscale(1) contrast(0.5) brightness(1.22);
+}

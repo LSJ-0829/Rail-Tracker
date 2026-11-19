@@ -17,7 +17,7 @@ export function formatPct(pct) {
   return pct > 0 && pct < 1 ? pct.toFixed(1) : String(Math.round(pct));
 }
 
-export default function Lobby({ overallStats, startDate, onEnter }) {
+export default function Lobby({ overallStats, startDate, abroadCount = 0, onEnter }) {
   const pct = overallStats.totalSeg ? (overallStats.riddenSeg / overallStats.totalSeg) * 100 : 0;
   const pctText = formatPct(pct);
   const since = formatStartDate(startDate);
@@ -84,6 +84,36 @@ export default function Lobby({ overallStats, startDate, onEnter }) {
             <Chevron />
           </span>
           <MetroGlyph />
+        </button>
+
+        <button
+          onClick={() => onEnter("map")}
+          className="card text-left px-7 py-7 flex items-center gap-4 transition hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
+        >
+          <div className="flex-1 min-w-0">
+            <h2 className="headline text-[24px] sm:text-[28px] leading-tight mb-1">지도</h2>
+            <p className="text-[15px] text-ink/80 leading-snug">탄 구간을 전국 지도에서 한눈에.</p>
+          </div>
+          <span className="text-[17px] text-link shrink-0">
+            보기
+            <Chevron />
+          </span>
+        </button>
+
+        <button
+          onClick={() => onEnter("abroad")}
+          className="card text-left px-7 py-7 flex items-center gap-4 transition hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
+        >
+          <div className="flex-1 min-w-0">
+            <h2 className="headline text-[24px] sm:text-[28px] leading-tight mb-1">해외</h2>
+            <p className="text-[15px] text-ink/80 leading-snug">
+              {abroadCount > 0 ? `${abroadCount}개 나라 기록 중.` : "해외에서 탄 열차를 나라별로."} 완주율에는 빠져요.
+            </p>
+          </div>
+          <span className="text-[17px] text-link shrink-0">
+            보기
+            <Chevron />
+          </span>
         </button>
 
         <button
